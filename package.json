@@ -1,0 +1,38 @@
+{
+  "name": "iobroker.wm-bus",
+  "version": "0.0.1",
+  "description": "Wireless M-Bus Adapter",
+  "author": {
+    "name": "soef",
+    "email": "soef@gmx.net"
+  },
+  "contributors": [
+    {
+      "name": "soef",
+      "email": "soef@gmx.net"
+    }
+  ],
+  "homepage": "https://github.com/soef/iobroker.wm-bus",
+  "license": "MIT",
+  "keywords": [
+    "ioBroker",
+    "m-bus",
+    "mbus",
+    "wm-bus",
+    "wireless m-bus",
+    "wireless mbus"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/soef/iobroker.wm-bus"
+  },
+  "dependencies": {
+    "serialport": "^2.0.6",
+  },
+  "devDependencies": {
+  },
+  "bugs": {
+    "url": "https://github.com/soef/iobroker.wm-bus/issues"
+  },
+  "readmeFilename": "README.md"
+}

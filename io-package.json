@@ -1,0 +1,38 @@
+{
+  "common": {
+    "name": "wm-bus",
+    "version": "0.0.1",
+    "title": "Wireless M-Bus",
+    "desc": {
+      "en": "Wireless M-Bus",
+      "de": "Wireless M-Bus",
+      "ru": "Wireless M-Bus"
+    },
+    "platform": "Javascript/Node.js",
+    "mode": "daemon",
+    "icon": "wm-bus.png",
+    "extIcon": "https://raw.githubusercontent.com/soef/iobroker.wm-bus/master/admin/wm-bus.png",
+    "readme": "https://github.com/soef/iobroker.wm-bus/blob/master/README.md",
+    "license": "MIT",
+    "loglevel": "info",
+    "keywords": [
+      "ioBroker",
+      "m-bus",
+      "mbus",
+      "wm-bus",
+      "wireless m-bus",
+      "wireless mbus"
+    ],
+    "enabled": false,
+    "nondeletable": true,
+    "type": "hardware"
+  },
+  "native": {
+    "vendorID": "",
+    "productID": ""
+  },
+  "instanceObjects": [
+  ],
+  "objects": [
+  ]
+}
