@@ -28,8 +28,15 @@
     "type": "hardware"
   },
   "native": {
-    "vendorID": "",
-    "productID": ""
+    "comPort": "",
+    "devices" : [
+      {
+        "manufacturerId": "",
+        "aesKey": "",
+        "version": 0,
+        "type": 0
+      }
+    ]
   },
   "instanceObjects": [
   ],

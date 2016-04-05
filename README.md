@@ -1,13 +1,17 @@
 ![Logo](admin/wm-bus.png)
-### ioBroker.wm-bus			   -
+### ioBroker.wm-bus			   
 
 Adapter for Wireless M-Bus
 
 #### Info
-Just now only an empty adapter
+
+Just now only the USB Adapter [iM871A](http://www.wireless-solutions.de/products/gateways/wirelessadapter) is supported
+More are comming
 
 #### Configuration
 
+If used, an AES key to decrypt the message.
+Manufacture ID, type and version will be determined after the first received message
 
 #### Installation
 Execute the following command in the iobroker root directory (e.g. in /opt/iobroker)
@@ -17,6 +21,8 @@ npm install iobroker.wm-bus
 
 #### Requirements
 
++ [iM871A](http://www.wireless-solutions.de/products/gateways/wirelessadapter)
++ a WM-Bus Device
 
 ### License
 The MIT License (MIT)

@@ -1,23 +1,15 @@
 <html>
 
-<!-- these 4 files always have to be included -->
-<link rel="stylesheet" type="text/css" href="../../lib/css/themes/jquery-ui/redmond/jquery-ui.min.css" />
+
+<link rel="stylesheet" type="text/css" href="../../lib/css/themes/jquery-ui/redmond/jquery-ui.min.css"/>
+<link rel="stylesheet" type="text/css" href="../../lib/css/jqGrid/ui.jqgrid-4.5.4.css"/>
 <script type="text/javascript" src="../../lib/js/jquery-1.11.1.min.js"></script>
 <script type="text/javascript" src="../../socket.io/socket.io.js"></script>
 <script type="text/javascript" src="../../lib/js/jquery-ui-1.10.3.full.min.js"></script>
-
-
-<!-- optional: use jqGrid
-<link rel="stylesheet" type="text/css" href="../../lib/css/jqGrid/ui.jqgrid-4.5.4.css"/>
 <script type="text/javascript" src="../../lib/js/jqGrid/jquery.jqGrid-4.5.4.min.js"></script>
-<script type="text/javascript" src="../../lib/js/jqGrid/i18n/grid.locale-all.js"></script>
--->
-<!-- optional: use multiselect
-<link rel="stylesheet" type="text/css" href="../../lib/css/jquery.multiselect-1.13.css"/>
-<script type="text/javascript" src="../../lib/js/jquery.multiselect-1.13.min.js"></script>
--->
-<!-- these two file always have to be included -->
-<link rel="stylesheet" type="text/css" href="../../css/adapter.css" />
+<script type="text/javascript" src="../../lib/js/jqGrid/grid.locale-all.js"></script>
+
+<link rel="stylesheet" type="text/css" href="../../css/adapter.css"/>
 <script type="text/javascript" src="../../js/translate.js"></script>
 <script type="text/javascript" src="../../js/adapter-settings.js"></script>
 
@@ -44,57 +36,156 @@
             "en": "AES Key"
         },
         "on save adapter restarts with new config immediately": {
-            "de": "Beim Speichern der Einstellungen wird der Adapter sofort neu gestartet.",
+            "de": "Beim Speichern der Einstellungen wird der Adapter automatisch neu gestartet.",
             "ru": "Сразу после сохранения настроек драйвер перезапуститься с новыми значениями"
+        },
+        "comPort": {
+            "de": "COM Port",
+            "ru": "Settings"
+        },
+        "manufacturerId": {
+            "de": "Manufacturer ID",
+            "en": "Manufacturer ID"
+        },
+        "aesKey": {
+            "de": "AES Key",
+            "en": "AES Key"
+        },
+        "version": {
+            "de": "Version",
+            "en": "Version"
+        },
+        "type": {
+            "de": "Typ",
+            "en": "Type"
+        },
+        "devices": {
+            "de": "Geräte-liste",
+            "en": "Dives list"
+        },
+        "AddDevice": {
+            "de": "Zum Hinzufügen +-Button betätigen",
+            "en": "Add #-Button to add device"
         }
     };
 
+
+    var devices = [];
+
+    // the function loadSettings has to exist ...
     function load(settings, onChange) {
+        if (!settings) return;
+        changed = true;
+
         for (var key in settings) {
+            // example: select elements with id=key and class=value and insert value
             if ($('#' + key + '.value').attr('type') == 'checkbox') {
-                $('#' + key + '.value').prop('checked', settings[key]).change(function () {
+                $('#' + key + '.value').prop('checked', settings[key]).change(function() {
+                    if ($('#auth').prop('checked')) {
+                        $('#secure').prop('checked', true);
+                    }
                     onChange();
+                    showHideSettings();
                 });
             } else {
-                $('#' + key + '.value').val(settings[key]).change(function () {
+                $('#' + key + '.value').val(settings[key]).change(function() {
                     onChange();
-                }).keyup(function () {
-                    $(this).trigger('change');
+                }).keyup(function() {
+                    onChange();
                 });
             }
         }
+        // Set default language
+        if (!settings.language) {
+            settings.language = systemLang || 'en';
+            $('#language').val(settings.language).trigger('change');
+        }
+
+        devices = settings.devices || [ {comPort: 'COM3', manufacturerId: "man", aesKey: "aes"}];
+        //devices = [{comPort: 'COM3', manufacturerId: "man", aesKey: "aes"}];
+
+        //var $grid = _editTable('devices', ['manufacturerId', 'version', 'type', 'aesKey'], devices, [], 400, function (action, obj) {
+        //    devices = getTableResult('devices', ['manufacturerId', 'version', 'type', 'aesKey']);
+        //});
+        editTable({
+            tabId: 'devices',
+            cols:   [{name: 'manufacturerId', width: '50'}, {name: 'version', width: 30}, {name: 'type', width: 30}, {name: 'aesKey',   width: '120'}],
+            values: devices,
+            top:    400,
+            title:  'Devices'
+        });
+        changed = true;
         onChange(false);
     }
 
+    // ... and the function save has to exist.
+    // you have to make sure the callback is called with the settings object as first param!
     function save(callback) {
+        // example: select elements with class=value and build settings object
         var obj = {};
+        changed = true;
         $('.value').each(function () {
             var $this = $(this);
-            var id = $this.attr('id');
-
             if ($this.attr('type') == 'checkbox') {
                 obj[$this.attr('id')] = $this.prop('checked');
             } else {
                 obj[$this.attr('id')] = $this.val();
             }
         });
+
+        // Get edited table
+        obj.devices = getTableResult('devices', ['manufacturerId', 'version', 'type', 'aesKey']);
+        changed = true;
         callback(obj);
     }
+
+
+    //    function load(settings, onChange) {
+    //        for (var key in settings) {
+    //            if ($('#' + key + '.value').attr('type') == 'checkbox') {
+    //                $('#' + key + '.value').prop('checked', settings[key]).change(function () {
+    //                    onChange();
+    //                });
+    //            } else {
+    //                $('#' + key + '.value').val(settings[key]).change(function () {
+    //                    onChange();
+    //                }).keyup(function () {
+    //                    $(this).trigger('change');
+    //                });
+    //            }
+    //        }
+    //        onChange(false);
+    //    }
+    //
+    //    function save(callback) {
+    //        var obj = {};
+    //        $('.value').each(function () {
+    //            var $this = $(this);
+    //            var id = $this.attr('id');
+    //
+    //            if ($this.attr('type') == 'checkbox') {
+    //                obj[$this.attr('id')] = $this.prop('checked');
+    //            } else {
+    //                obj[$this.attr('id')] = $this.val();
+    //            }
+    //        });
+    //        callback(obj);
+    //    }
 
 </script>
 
 
 <style>
-    td {
-        font-size: 13px;
-        padding-left:1px;
-        padding-right: 4px;
-        padding-top: 3px;
-        padding-bottom: 3px;
-    }
-    input {
-        font-size: 13px;
-    }
+    /*    td {
+            font-size: 13px;
+            padding-left:1px;
+            padding-right: 4px;
+            padding-top: 3px;
+            padding-bottom: 3px;
+        }
+        input {
+            font-size: 13px;
+        }*/
     h1 {
         font-size: 11px;
         color: #505050;
@@ -119,11 +210,28 @@
     </table>
 
 
+
+    <h1 class="translate">Swrial Port</h1>
+
+    <table>
+        <tr><td class="translate">COM Port Name</td><td><input class="value" id="devices[0].comPort" type="input" size="15" /></td></tr>
+    </table>
+    <div style="padding: 10px"></div>
+
+    <h1 class="translate">AddDevice</h1>
+
+    <!--
+    <h1 class="translate">Swrial Port</h1>
+
+    <table>
+        <tr><td class="translate">COM Port Name</td><td><input class="value" id="devices[0].comPort" type="input" size="15" /></td></tr>
+    </table>
+
     <h1 class="translate">WM-Bus Data</h1>
 
     <table>
-        <tr><td class="translate">Manufacturer ID</td><td><input class="value" id="manufacturerId" type="input" size="45" /></td></tr>
-        <tr><td class="translate">AES Key</td><td><input class="value" id="aesKey" type="input" size="45" /></td></tr>
+        <tr><td class="translate">Manufacturer ID</td><td><input class="value" id="devices[0].manufacturerId" type="input" size="40" /></td></tr>
+        <tr><td class="translate">AES Key</td><td><input class="value" id="devices[0].aesKey" type="input" size="40" /></td></tr>
     </table>
 
     <h1 class="translate">Info</h1>
@@ -132,35 +240,14 @@
         <tr><td colspan="3" class="translate">on save adapter restarts with new config immediately</td></tr>
     </table>
 
+    <h1 class="translate">Devices</h1>
+    -->
+    <table id="devices"></table><div id="pager-devices"></div>
     <!--h1 class="translate">Info</h1>
     <table>
         <tr><td class="translate">on save adapter restarts with new config immediately</td></tr>
     </table-->
 </div>
 
-
-<!--div id="adapter-container">
-
-    <table>
-        <tr>
-            <td colspan="2"><h4 class="translate" style="width: 100%">HID Device</h4></td>
-        </tr>
-        <tr><td class="translate">Vendor ID</td><td colspan="2"><input class="value number" id="vendorID" type="input" size="20" /></td></tr>
-        <tr><td class="translate">Product ID</td><td colspan="2"><input class="value number" id="productID" type="input" size="20" /></td></tr>
-        <tr><td colspan="3" style="height:10px"></td></tr>
-        <tr>
-            <td colspan="3"><h4 class="translate" style="width: 100%">Settings</h4></td>
-        </tr>
-        <tr><td class="translate">Key up timeout</td><td colspan="2"><input class="value number" id="keyUpTimeout" type="input" size="5" /></td></tr>
-        <tr><td class="translate">Create all unknown states</td><td colspan="2"><input type="checkbox" class="value" id="createUnknownStates" size="5" /></td></tr>
-
-        <tr>
-        <tr><td colspan="3" style="height:10px"></td></tr>
-        <td colspan="3"><h4 class="translate" style="width: 100%">Info</h4></td>
-        </tr>
-
-    </table>
-    <tr><td><p class="translate">on save adapter restarts with new config immediately</p></tr></td>
-</div-->
 
 </html>

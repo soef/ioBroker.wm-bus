@@ -26,13 +26,17 @@
     "type": "git",
     "url": "https://github.com/soef/iobroker.wm-bus"
   },
+  "engines": {
+    "node": ">=4.4.0"
+  },
   "dependencies": {
     "serialport": "^2.0.6",
+    "wm-bus": "0.0.1"
   },
-  "devDependencies": {
-  },
+  "devDependencies": {},
   "bugs": {
     "url": "https://github.com/soef/iobroker.wm-bus/issues"
   },
-  "readmeFilename": "README.md"
+  "readmeFilename": "README.md",
+  "main": "wm-bus.js"
 }
