@@ -5,7 +5,8 @@ var utils = require(__dirname + '/lib/utils'),
     eventEmitter = require('events').EventEmitter,
     serialPortModul = require("serialport");
 
-var soef = require(__dirname + '/lib/soef'),
+//var soef = require(__dirname + '/lib/soef'),
+var soef = require('soef'),
     devices = new soef.Devices();
 
 var WMB = require('wm-bus'),
@@ -120,11 +121,12 @@ var Com = function (_wmbus, options) {
 
         that.getConfig(function (err) {
             setTimeout(function () {
+                that.initStick();
                 if ((that.hasOwnProperty('deviceConfig')) && (that.deviceConfig.linkMode != 3)) {
-                    //that.initStick();
+                    that.initStick();
+                    //??? xxxxxxx
                 }
             }, 5000);
-
             that.getInfo(function (err) {
                 that.getSysStatus(function (err) {
                 });
