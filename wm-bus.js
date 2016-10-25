@@ -237,7 +237,7 @@ Com.prototype.init = function (callback) {
                 that.initStick();
                 //??? xxxxxxx
             }
-            if (callback) callback(hasProp(that, 'deviceConfig.linkMode'));
+            if (callback) callback(soef.hasProp(that, 'deviceConfig.linkMode'));
         }, 5000);
         that.getInfo(function (err) {
             that.getSysStatus(function (err) {
