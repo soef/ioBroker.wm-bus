@@ -5,8 +5,10 @@ Adapter for Wireless M-Bus
 
 #### Info
 
-Just now only the USB Adapter [iM871A](http://www.wireless-solutions.de/products/gateways/wirelessadapter) is supported
-More are comming
+Supported USB Adapters:
+
++ [iM871A](http://www.wireless-solutions.de/products/gateways/wirelessadapter)
++ [CUL](http://shop.busware.de/product_info.php/products_id/29?osCsid=eab2ce6ef5efc95dbdf61396ca256b6e)
 
 #### Configuration
 
@@ -21,8 +23,9 @@ npm install iobroker.wm-bus
 
 #### Requirements
 
-+ [iM871A](http://www.wireless-solutions.de/products/gateways/wirelessadapter)
-+ a WM-Bus Device
++ an [iM871A](http://www.wireless-solutions.de/products/gateways/wirelessadapter) USB Stick
++ or a [CUL](http://shop.busware.de/product_info.php/products_id/29?osCsid=eab2ce6ef5efc95dbdf61396ca256b6e) USB Stick
++ a WM-Bus Device e.g. [EasyMeter](http://www.easymeter.com/)
 
 ### License
 The MIT License (MIT)

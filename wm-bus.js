@@ -3,10 +3,8 @@
 var utils = require(__dirname + '/lib/utils'),
     util = require('util'),
     eventEmitter = require('events').EventEmitter,
-    serialPortModul = require("serialport");
-
-//var soef = require(__dirname + '/lib/soef'),
-var soef = require('soef'),
+    serialPortModul = require("serialport"),
+    soef = require('soef'),
     devices = new soef.Devices();
 
 var WMB = require('wm-bus'),
@@ -40,7 +38,7 @@ var adapter = utils.adapter({
     },
     stateChange: function (id, state) {
     },
-    message: onAdapterMessage,
+    message: onMessage,
     ready: function () {
         devices.init(adapter, function(err) {
             main();
@@ -49,68 +47,83 @@ var adapter = utils.adapter({
 });
 
 
-function onAdapterMessage (obj) {
-    if (!obj || !obj.command) {
+function onMessage (obj) {
+    if (!obj || !obj.command || !obj.callback) {
         return;
     }
+    var timer = setTimeout(function() {
+        timer = null;
+        adapter.sendTo(obj.from, obj.command, '[]', obj.callback);
+    }, 2000);
     switch (obj.command) {
-        case 'listUart':
-            if (!obj.callback) {
-                return;
-            }
-            if (serialPortModul) {
-                serialPortModul.list(function (err, ports) {
-
-                    adapter.log.info('List of port: ' + JSON.stringify(ports));
-                    adapter.sendTo(obj.from, obj.command, ports, obj.callback);
-                });
-            } else {
-                adapter.log.warn('Module serialport is not available');
-                adapter.sendTo(obj.from, obj.command, [{comName: 'Not available'}], obj.callback);
-            }
+        case 'discovery':
+            if (!serialPortModul) return;
+            serialPortModul.list(function (err, ports) {
+                if (!err && ports) {
+                    ports.forEach(function(v) {
+                        if (!v.manufacturer) v.manufacturer = 'n/a';
+                    });
+                    if (!timer) return;
+                    clearTimeout(timer);
+                    adapter.sendTo(obj.from, obj.command, JSON.stringify(ports), obj.callback);
+                }
+            });
+            break;
+        default:
             break;
     }
 }
 
 
-var Com = function (_wmbus, options) {
+var Com = function (options, callback) {
     eventEmitter.call(this);
     util._extend(this, WMBUSController);
     var that = this;
-    var unpack = _wmbus.unpack;
+    var spOptions = {};
 
-    this.wmbus = _wmbus;
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    this.wmbus = new WMBUS({log: adapter.log, formatDate: adapter.formatDate});
+    for (var i=0; i < adapter.config.devices.length; i++) {
+        var configDevice = adapter.config.devices[i];
+        this.wmbus.addAESKey(configDevice.manufacturerId, configDevice.aesKey);
+    }
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    var unpack = this.wmbus.unpack;
     this.msgReceived = 0;
 
-    options.init = 0;
+    //options.init = 0;
+    //if (options.cul) {
+    //    spOptions.baudrate = 9600;
+    //    spOptions.parser = serialPortModul.parsers.readline('\r\n');
+    //} else {
+    //    spOptions.baudrate = 57600;
+    //}
+    this.prepare(spOptions);
+    if (options.baudrate) spOptions.baudrate = options.baudrate;
 
-    var spOptions = { baudrate: options.baudrate };
-//    sp.open(portName,{
-//            52 baudRate: 9600, 
-//            53 dataBits: 8, 
-//            54 parity: 'none', 
-//            55 stopBits: 1, 
-//            56 flowControl: false 
-//    57
-//}); 
-
-    //spOptions.parser = serialPortModul.parsers.readline('\r\n');
     var serialPort = new serialPortModul.SerialPort(options.serialport, spOptions);
-
 
     this.close = function (callback) {
         if (!serialPort) return;
         callback = callback || function() {};
-        if (options.init && stopCmd) {
-            that.write(stopCmd, function () {
-                serialPort.close(callback);
-            });
-        } else {
+        //if (options.init && stopCmd) {
+        //    that.write(stopCmd, function () {
+        //        serialPort.close(callback);
+        //    });
+        //} else {
             serialPort.close(callback);
-        }
+            serialPort = null;
+        //}
         serialPort = null;
     };
 
+    this.write = function send(data, callback) {
+        if(serialPort) serialPort.write(data, callback);
+    };
+
+    serialPort.on('error', function (err) {
+        adapter.log.error('Error: ' + err.message);
+    });
     serialPort.on('close', function () {
         if (serialPort) {
             this.emit('close');
@@ -119,29 +132,8 @@ var Com = function (_wmbus, options) {
 
     serialPort.on("open", function () {
 
-        that.getConfig(function (err) {
-            setTimeout(function () {
-                that.initStick();
-                if ((that.hasOwnProperty('deviceConfig')) && (that.deviceConfig.linkMode != 3)) {
-                    that.initStick();
-                    //??? xxxxxxx
-                }
-            }, 5000);
-            that.getInfo(function (err) {
-                that.getSysStatus(function (err) {
-                });
-            });
-        });
-
-        serialPort.on('data', function (data) {
-
-            var dataStr = data.toString('binary');
-            adapter.log.debug("raw: " + unpack('H*', dataStr));
-
-            if(that.START_OF_FRAME == data[that.SOF]) {  // iM871A   dwReturn = IMST
-                that.decodeiM871A (data, dataStr);
-            }
-        });
+        serialPort.on('data', that.onData.bind(that));
+        that.init(callback);
 
     });
 
@@ -229,18 +221,136 @@ var Com = function (_wmbus, options) {
         }
     };
 
-    this.write = function send(data, callback) {
-        serialPort.write(data, callback);
-    };
-
     return this;
 };
 
+Com.prototype.prepare = function(spOptions) {
+    spOptions.baudrate = 57600;
+};
 
-function CDevice(name, showName) {
-    devices.CDevice.call(this, name, showName);
+Com.prototype.init = function (callback) {
+    var that = this;
+    that.getConfig(function (err) {
+        setTimeout(function () {
+            that.initStick();
+            if ((that.hasOwnProperty('deviceConfig')) && (that.deviceConfig.linkMode != 3)) {
+                that.initStick();
+                //??? xxxxxxx
+            }
+            if (callback) callback(hasProp(that, 'deviceConfig.linkMode'));
+        }, 5000);
+        that.getInfo(function (err) {
+            that.getSysStatus(function (err) {
+                if(callback) callback();
+            });
+        });
+    });
+};
 
-    this.updateState = function (data, value) {
+Com.prototype.onData = function (data) {
+    if(this.START_OF_FRAME == data[this.SOF]) {  // iM871A   dwReturn = IMST
+        var dataStr = data.toString('binary');
+        adapter.log.debug("raw: " + this.wmbus.unpack('H*', dataStr));
+        this.decodeiM871A (data, dataStr);
+    }
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+var CulCom = function (_wmbus, options, callback) {
+    Com.call(this, _wmbus, options, callback);
+};
+
+CulCom.prototype.prepare = function(spOptions) {
+    spOptions.baudrate = 9600;
+    spOptions.parser = serialPortModul.parsers.readline('\r\n');
+};
+
+CulCom.prototype.init = function (callback) {
+    var that = this;
+    that.write('X21\r\nbrt', function () {
+        setTimeout(function () {
+            if (callback) callback(that.tmode == true);
+        }, 2000)
+    });
+};
+
+CulCom.prototype.decode = function(data) {
+    if (data.indexOf('b4') == 0) {
+        var d ='';
+        data.substr(1).match(/(..)/g).forEach (function(v) {
+            d += String.fromCharCode(parseInt(v, 16));
+        });
+        this.wmbus.parse(d);
+    }
+};
+
+CulCom.prototype.onData = function (data) {
+    if(typeof data == 'string' && data[0] == 'b') {
+        adapter.log.debug('raw: ' + data);
+        this.decode(data);
+    } else if (data.length >= 2 && data[0] == 98) {
+        this.decode(data);
+    } else {
+        if (typeof data == 'string' && data.indexOf('TMODE' == 0)) {
+            this.tmode = true;
+        } else if (data[0]==84 && data[1]==77 && data[2]==79 && data[3]==68 && data[4]==69) { // TMODE
+            this.tmode = true;
+        }
+    }
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//function CWMBusDevice(name, showName) {
+//    //if (!(this instanceof CWMBusDevice)) {
+//    //    return new CWMBusDevice(_name, showName, list);
+//    //}
+//    //var me = devices.CDevice.call(this, name, showName);
+//    //util._extend(this, devices.CDevice);
+//    //fullExtend(this, devices.CDevice);
+//    fullExtend(this, devices.CDevice.call(this, name, showName));
+//
+//    this.updateState = function (data, value) {
+//        var channel = /*data.number.toString() + '-' +*/ data.type;
+//        if (data.hasOwnProperty('extension')) {
+//            channel += '-' + data.extension.replace(', ', '');
+//        }
+//        this.setChannel(data.number.toString(), channel);
+//        for (var i in data) {
+//            switch (i) {
+//                //case 'type':
+//                case 'unit':
+//                case 'value':
+//                //case 'extension':
+//                //case 'functionFieldText':
+//                    if (data[i]) {
+//                        this.set(i, data[i]);
+//                    }
+//            }
+//        }
+//        switch (data.type || "") {
+//            case 'VIF_ELECTRIC_POWER_PHASE_NO':
+//            case 'VIF_ELECTRIC_POWER_PHASE':
+//            case 'VIF_ELECTRIC_POWER':
+//                var s = formatValue(data.value, 2) + ' ' + data.unit;
+//                //this.set('valueString', s);
+//                this.set('', s);
+//                break;
+//            case 'VIF_ENERGY_WATT':
+//                var s = formatValue(data.value / 1000, 2) + ' k' + data.unit;
+//                //this.set('valueString', s);
+//                this.set('', s);
+//                break;
+//
+//        }
+//    }
+//}
+
+function newCDevice(name, showName) {
+
+    devices.CDevice.prototype.updateState = function (data, value) {
         var channel = /*data.number.toString() + '-' +*/ data.type;
         if (data.hasOwnProperty('extension')) {
             channel += '-' + data.extension.replace(', ', '');
@@ -251,8 +361,8 @@ function CDevice(name, showName) {
                 //case 'type':
                 case 'unit':
                 case 'value':
-                //case 'extension':
-                //case 'functionFieldText':
+                    //case 'extension':
+                    //case 'functionFieldText':
                     if (data[i]) {
                         this.set(i, data[i]);
                     }
@@ -273,17 +383,21 @@ function CDevice(name, showName) {
                 break;
 
         }
-    }
+    };
+    return new devices.CDevice(name, showName);
 }
 
-var tries = 0,
-    lastError = 0;
+//var tries = 0,
+//    lastError = 0;
 
 WMBUS.prototype.updateStates = function(){
 
     if (this.errorcode === this.cc.ERR_NO_ERROR) {
+        //if (!this.dev) this.dev = new CWMBusDevice(name, this.typestring);
+        if (!this.dev) this.dev = newCDevice(); //newCDevice(name, this.typestring);
         var name = this.manufacturer + '-' + this.afield_id;
-        var dev = new CDevice(name, this.typestring);
+        var dev = this.dev; //new CWMBusDevice(name, this.typestring);
+        dev.setDevice(name, this.typestring);
         dev.set('encryptionMode', this.encryptionMode);
         dev.set('lastUpdate', adapter.formatDate(new Date(), "YYYY-MM-DD hh:mm:ss"));
         for (var i = 0; i < this.datablocks.length; i++) {
@@ -291,14 +405,16 @@ WMBUS.prototype.updateStates = function(){
         }
         //dev.update();
     } else {
-        if (lastError !== this.errorcode)
+        if (this.lastError !== this.errorcode)
         {
-            lastError = this.errorcode;
+            this.lastError = this.errorcode;
             adapter.log.error("Error Code: " + this.errorcode + " " + this.errormsg);
         }
-        if (tries < 5) {
+        //this.tries >>= 0;
+        if (this.tries == undefined) this.tries = 0;
+        if (this.tries < 5) {
             this.checkConfiguration ();
-            tries++;
+            this.tries++;
         }
     }
     devices.root.set('errorcode', this.errorcode);
@@ -345,16 +461,14 @@ WMBUS.prototype.checkConfiguration = function () {
 
 function main() {
 
-    var wmbus = new WMBUS({log: adapter.log, formatDate: adapter.formatDate});
-    //for (var configDevice of adapter.config.devices) {
-    //    wmbus.addAESKey(configDevice.manufacturerId, configDevice.aesKey);
-    //}
-    for (var i=0; i < adapter.config.devices.length; i++) {
-        var configDevice = adapter.config.devices[i];
-        wmbus.addAESKey(configDevice.manufacturerId, configDevice.aesKey);
-    }
-    com = new Com(wmbus, {serialport: adapter.config.comPort, baudrate: 57600, init: 0});
+    if (!adapter.config.comPort) return;
 
+    com = new CulCom({serialport: adapter.config.comPort}, function(isCul) {
+        if (isCul) return;
+        com.close();
+        com = new Com({serialport: adapter.config.comPort}, function(is) {
+        });
+    });
     //adapter.subscribeStates('*');
 }
 
