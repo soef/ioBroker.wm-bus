@@ -43,8 +43,8 @@
             "en": "Please wait..."
         },
         "Enable adapter first": {
-            "de": "Adapter TR-064 ist nicht gestartet, bitte starten bzw. aktivieren!",
-            "en": "Enable adapter first"
+            "de": "Adapter #namespace ist nicht gestartet, bitte starten bzw. aktivieren!",
+            "en": "Enable adapter #namespace first"
         },
         "looking for device": {
             "de": "Suche Geräte",
@@ -87,9 +87,11 @@
 
     var devices = [];
     var active = false;
+    var namespace ='n/a';
 
     function load(settings, onChange) {
         if (!settings) return;
+        namespace = adapter + '.' + instance;
         $("#dialog-search").dialog({
             autoOpen: false,
             modal: true,
@@ -97,7 +99,7 @@
             height: 300
         });
 
-        socket.emit('getState', 'system.adapter.' + adapter + '.' + instance + '.alive', function (err, state) {
+        socket.emit('getState', 'system.adapter.' + namespace + '.alive', function (err, state) {
             active = common.enabled || (state && state.val);
             //active = true;
         });
@@ -160,7 +162,11 @@
 
         $('#find').button().click(function () {
             if (!active) {
-                showMessage(_(translateWord('Enable adapter first')), 'Warning', 'info');
+                var msg = translateWord('Enable adapter first').replace('#namespace', namespace)
+                //$("#dialog-search").dialog('option', 'title', msg);
+                //$("#dialog-search").html(msg);
+                //$("#dialog-search").dialog("open");
+                showMessage(_(msg), 'Warning', 'info');
                 return;
             }
 
@@ -168,7 +174,7 @@
             $("#dialog-search").dialog('option', 'title', translateWord("looking for device"));
             $("#dialog-search").dialog("open");
 
-            sendTo('wm-bus.' + instance, 'discovery', 5000, function (result) {
+            sendTo(namespace, 'discovery', 5000, function (result) {
                 try {
                     var arr = JSON.parse(result);
                     if (!arr.length) {

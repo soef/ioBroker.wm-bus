@@ -1,7 +1,7 @@
 {
   "common": {
     "name": "wm-bus",
-    "version": "0.1.4",
+    "version": "0.1.5",
     "title": "Wireless M-Bus",
     "desc": {
       "en": "Wireless M-Bus",
@@ -23,7 +23,7 @@
       "wireless m-bus",
       "wireless mbus"
     ],
-    "enabled": false,
+    "enabled": true,
     "nondeletable": true,
     "type": "hardware",
     "messagebox": true

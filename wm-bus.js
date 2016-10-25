@@ -8,7 +8,6 @@ var utils = require(__dirname + '/lib/utils'),
     devices = new soef.Devices();
 
 var WMB = require('wm-bus'),
-    WMBUSController = WMB.WMBUSController,
     WMBUS = WMB.WMBUS;
 
 var com = null;
@@ -28,16 +27,16 @@ var adapter = utils.adapter({
             callback();
         }
     },
-    discover: function (callback) {
-    },
-    install: function (callback) {
-    },
-    uninstall: function (callback) {
-    },
-    objectChange: function (id, obj) {
-    },
-    stateChange: function (id, state) {
-    },
+    //discover: function (callback) {
+    //},
+    //install: function (callback) {
+    //},
+    //uninstall: function (callback) {
+    //},
+    //objectChange: function (id, obj) {
+    //},
+    //stateChange: function (id, state) {
+    //},
     message: onMessage,
     ready: function () {
         devices.init(adapter, function(err) {
@@ -77,7 +76,7 @@ function onMessage (obj) {
 
 var Com = function (options, callback) {
     eventEmitter.call(this);
-    util._extend(this, WMBUSController);
+    util._extend(this, WMB.WMBUSController);
     var that = this;
     var spOptions = {};
 
