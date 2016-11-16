@@ -1,7 +1,7 @@
 {
   "common": {
     "name": "wm-bus",
-    "version": "0.1.5",
+    "version": "0.1.7",
     "title": "Wireless M-Bus",
     "desc": {
       "en": "Wireless M-Bus",
@@ -30,14 +30,7 @@
   },
   "native": {
     "comPort": "",
-    "devices" : [
-      {
-        "manufacturerId": "",
-        "aesKey": "",
-        "version": 0,
-        "type": 0
-      }
-    ]
+    "devices" : []
   },
   "instanceObjects": [
   ],
