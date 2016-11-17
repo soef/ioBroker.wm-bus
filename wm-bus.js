@@ -16,7 +16,7 @@ var adapter = utils.adapter({
     name: 'wm-bus',
     
     unload: function (callback) {
-        adapter.log.info("going down...");
+        if (hasProp(adapter, 'log.info')) adapter.log.info("going down...");
         try {
             if (com) {
                 com.close();
@@ -68,16 +68,15 @@ function findComPort() {
     if (!serialPortModule) return;
     serialPortModule.list(function (err, ports) {
         function doIt() {
-            if (ports.length) {
-                var p = ports.pop();
-                run(p.comName, function (res) {
-                    if (!res) return doIt();
-                    changeConfig (function (config) {
-                        config.comPort = p.comName;
-                        return true;
-                    });
+            if (ports.length <= 0) return;
+            var p = ports.pop();
+            run(p.comName, function (res) {
+                if (!res) return doIt();
+                changeConfig (function (config) {
+                    config.comPort = p.comName;
+                    return true;
                 });
-            }
+            });
         }
         if (!err && ports) doIt();
     })
@@ -252,8 +251,8 @@ Com.prototype.onData = function (data) {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-var CulCom = function (_wmbus, options, callback) {
-    Com.call(this, _wmbus, options, callback);
+var CulCom = function (options, callback) {
+    Com.call(this, options, callback);
 };
 
 CulCom.prototype.prepare = function(spOptions) {
@@ -321,12 +320,10 @@ function newCDevice(name, showName) {
             case 'VIF_ELECTRIC_POWER_PHASE':
             case 'VIF_ELECTRIC_POWER':
                 var s = formatValue(data.value, 2) + ' ' + data.unit;
-                //this.set('valueString', s);
                 this.set('', s);
                 break;
             case 'VIF_ENERGY_WATT':
                 var s = formatValue(data.value / 1000, 2) + ' k' + data.unit;
-                //this.set('valueString', s);
                 this.set('', s);
                 break;
 
@@ -365,9 +362,10 @@ WMBUS.prototype.updateStates = function(){
     devices.root.update();
 };
 
-
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//has to be moved to soef lib
 function changeAdapterConfig (_adapter, changeCallback, doneCallback) {
-    _adapter.getForeignObject("system.adapter." + adapter.namespace, function (err, obj) {
+    _adapter.getForeignObject("system.adapter." + _adapter.namespace, function (err, obj) {
         if (!err && obj && !obj.native) obj['native'] = {};
         if (!err && obj && changeCallback(obj.native) !== false) {
             _adapter.setForeignObject(obj._id, obj, {}, function (err, obj) {
@@ -381,6 +379,7 @@ function changeAdapterConfig (_adapter, changeCallback, doneCallback) {
 function changeConfig(changeCallback, doneCallback) {
     return changeAdapterConfig(adapter, changeCallback, doneCallback)
 }
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 WMBUS.prototype.checkConfiguration = function () {
     if (adapter.config.devices.length > 7) return;
@@ -408,7 +407,6 @@ WMBUS.prototype.checkConfiguration = function () {
         changeConfig (function(config) {
             config.devices[idx] = foundDevice;
         });
-
     }
 };
 

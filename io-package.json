@@ -1,7 +1,7 @@
 {
   "common": {
     "name": "wm-bus",
-    "version": "0.1.7",
+    "version": "0.1.8",
     "title": "Wireless M-Bus",
     "desc": {
       "en": "Wireless M-Bus",
