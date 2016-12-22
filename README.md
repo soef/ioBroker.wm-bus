@@ -10,6 +10,8 @@
 
 Adapter for Wireless M-Bus
 
+***This adapter requires Node 4.x+ and higher***
+
 #### Info
 
 Supported USB Adapters:
@@ -25,7 +27,7 @@ Manufacture ID, type and version will be determined after the first received mes
 #### Installation
 Execute the following command in the iobroker root directory (e.g. in /opt/iobroker)
 ```
-npm install iobroker.wm-bus 
+npm install iobroker.wm-bus
 ```
 
 #### Requirements
