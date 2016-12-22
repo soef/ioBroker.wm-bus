@@ -158,8 +158,8 @@ var Com = function (options, callback) {
         }
         if (header.b_rssi) {
             var rssi = data[7+header.payloadLength];
-            const b = -100.0 - (4000.0 / 150.0);
-            const m = 80.0 / 150.0;
+            var b = -100.0 - (4000.0 / 150.0);
+            var m = 80.0 / 150.0;
             header.rssi = parseInt(m * rssi + b);
         }
 
