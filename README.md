@@ -6,6 +6,8 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/xg29a1r5dl00dq23?svg=true)](https://ci.appveyor.com/project/soef/iobroker-wm-bus)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](https://github.com/soef/iobroker.wm-bus/blob/master/LICENSE)
 
+***This adapter requires at least Node 4.4***
+
 #### Description
 
 Adapter for Wireless M-Bus
@@ -33,7 +35,7 @@ npm install iobroker.wm-bus
 + an [iM871A](http://www.wireless-solutions.de/products/gateways/wirelessadapter) USB Stick
 + or a [CUL](http://shop.busware.de/product_info.php/products_id/29?osCsid=eab2ce6ef5efc95dbdf61396ca256b6e) USB Stick
 + a WM-Bus Device e.g. [EasyMeter](http://www.easymeter.com/)
-
+<!--
 ### License
 The MIT License (MIT)
 
@@ -56,3 +58,4 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
+-->
