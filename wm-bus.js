@@ -14,7 +14,7 @@ var com = null;
 
 var adapter = utils.adapter({
     name: 'wm-bus',
-    
+
     unload: function (callback) {
         if (hasProp(adapter, 'log.info')) adapter.log.info("going down...");
         try {
@@ -102,7 +102,7 @@ var Com = function (options, callback) {
     this.msgReceived = 0;
 
     this.prepare(spOptions);
-    if (options.baudrate) spOptions.baudrate = options.baudrate;
+    if (options.baudrate) spOptions.baudrate = parseInt(options.baudrate,10);
 
     var serialPort = new serialPortModule.SerialPort(options.serialport, spOptions);
 
