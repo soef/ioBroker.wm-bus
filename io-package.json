@@ -1,7 +1,13 @@
 {
   "common": {
     "name": "wm-bus",
-    "version": "0.1.12",
+    "version": "0.2.0",
+    "new": {
+      "0.2.0": {
+        "en": "Some changed to use serialport 4.x",
+        "de": "Einige Anpassungen um serialport 4.x zu nutzen"
+      }
+    },
     "title": "Wireless M-Bus",
     "desc": {
       "en": "Wireless M-Bus",
