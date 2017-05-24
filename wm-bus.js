@@ -16,7 +16,7 @@ var adapter = utils.adapter({
     name: 'wm-bus',
 
     unload: function (callback) {
-        if (hasProp(adapter, 'log.info')) adapter.log.info("going down...");
+        soef.safeFunction(adapter, 'log.info') ("going down...");
         try {
             if (com) {
                 com.close();
@@ -104,7 +104,8 @@ var Com = function (options, callback) {
     this.prepare(spOptions);
     if (options.baudrate) spOptions.baudrate = parseInt(options.baudrate,10);
 
-    var serialPort = new serialPortModule.SerialPort(options.serialport, spOptions);
+    //var serialPort = new serialPortModule.SerialPort(options.serialport, spOptions);
+    var serialPort = new serialPortModule (options.serialport, spOptions);
 
     this.close = function (callback) {
         if (!serialPort) return;
@@ -114,7 +115,13 @@ var Com = function (options, callback) {
     };
 
     this.write = function send(data, callback) {
-        if(serialPort) serialPort.write(data, callback);
+        if(serialPort) {
+            serialPort.write(data, function (err) {
+                //console.log('write callback: ' + data.toString() + err);
+                //callback(err, data);
+            });
+            serialPort.drain(callback);
+        }
     };
 
     serialPort.on('error', function (err) {
@@ -165,7 +172,7 @@ var Com = function (options, callback) {
 
         switch (header.endPointId) {
             case that.RADIOLINK_ID: // WM-Bus Data
-                if (header.mid == that.RADIOLINK_MSG_WMBUSMSG_IND) {
+                if (header.mid === that.RADIOLINK_MSG_WMBUSMSG_IND) {
                     length = data[that.LENGTH] + that.OFFSETPAYLOAD + (header.timeStamp ? 4 : 0) + (header.rssi ? 1 : 0) + (header.crc16 ? 2 : 0);
                     that.msgReceived++;
                     that.wmbus.crcRemoved = true;
@@ -226,23 +233,24 @@ Com.prototype.init = function (callback) {
     var that = this;
     that.getConfig(function (err) {
         setTimeout(function () {
-            that.initStick();
-            if ((that.hasOwnProperty('deviceConfig')) && (that.deviceConfig.linkMode != 3)) {
-                that.initStick();
-                //??? xxxxxxx
-            }
-            if (callback) callback(soef.hasProp(that, 'deviceConfig.linkMode') ? 'iM871A' : undefined);
-        }, 5000);
-        that.getInfo(function (err) {
-            that.getSysStatus(function (err) {
-                if(callback) callback();
+            that.initStick(function () {
+                that.getInfo(function (err) {
+                    that.getSysStatus(function (err) {
+                        if ((that.hasOwnProperty('deviceConfig')) && (that.deviceConfig.linkMode !== that.LINKMODE_T1)) {
+                            that.initStick();
+                            //??? xxxxxxx
+                        }
+                        if (callback) callback(soef.hasProp(that, 'deviceConfig.linkMode') ? 'iM871A' : undefined);
+                        
+                    });
+                });
             });
-        });
+        }, 2000);
     });
 };
 
 Com.prototype.onData = function (data) {
-    if(this.START_OF_FRAME == data[this.SOF]) {  // iM871A   dwReturn = IMST
+    if(this.START_OF_FRAME === data[this.SOF]) {  // iM871A   dwReturn = IMST
         var dataStr = data.toString('binary');
         adapter.log.debug("raw: " + this.wmbus.unpack('H*', dataStr));
         this.decodeiM871A (data, dataStr);
@@ -264,13 +272,13 @@ CulCom.prototype.init = function (callback) {
     var that = this;
     that.write('X21\r\nbrt', function () {
         setTimeout(function () {
-            if (callback) callback(that.tmode == true ? 'cul' : undefined);
+            if (callback) callback(that.tmode === true ? 'cul' : undefined);
         }, 2000)
     });
 };
 
 CulCom.prototype.decode = function(data) {
-    if (data.indexOf('b4') == 0) {
+    if (data.indexOf('b4') === 0) {
         var d ='';
         data.substr(1).match(/(..)/g).forEach (function(v) {
             d += String.fromCharCode(parseInt(v, 16));
@@ -280,15 +288,15 @@ CulCom.prototype.decode = function(data) {
 };
 
 CulCom.prototype.onData = function (data) {
-    if(typeof data == 'string' && data[0] == 'b') {
+    if(typeof data === 'string' && data[0] === 'b') {
         adapter.log.debug('raw: ' + data);
         this.decode(data);
-    } else if (data.length >= 2 && data[0] == 98) {
+    } else if (data.length >= 2 && data[0] === 98) {
         this.decode(data);
     } else {
-        if (typeof data == 'string' && data.indexOf('TMODE' == 0)) {
+        if (typeof data === 'string' && data.indexOf('TMODE' === 0)) {
             this.tmode = true;
-        } else if (data[0]==84 && data[1]==77 && data[2]==79 && data[3]==68 && data[4]==69) { // TMODE
+        } else if (data[0]===84 && data[1]===77 && data[2]===79 && data[3]===68 && data[4]===69) { // TMODE
             this.tmode = true;
         }
     }
@@ -351,7 +359,7 @@ WMBUS.prototype.updateStates = function(){
             this.lastError = this.errorcode;
             adapter.log.error("Error Code: " + this.errorcode + " " + this.errormsg);
         }
-        if (this.tries == undefined) this.tries = 0;
+        if (this.tries === undefined) this.tries = 0;
         if (this.tries < 5) {
             this.checkConfiguration ();
             this.tries++;
@@ -390,17 +398,17 @@ WMBUS.prototype.checkConfiguration = function () {
 
     for (var idx = 0; idx < adapter.config.devices.length; idx++) {
         var configDevice = adapter.config.devices[idx];
-        if (configDevice.manufacturerId == this.afield_id) {
+        if (configDevice.manufacturerId === this.afield_id) {
             found = idx;
             foundDevice = configDevice;
-            if (configDevice.version == this.afield_ver && configDevice.type == this.afield_type) {
+            if (configDevice.version === this.afield_ver && configDevice.type === this.afield_type) {
                 exact = true;
                 break;
             }
         }
     }
     if (!exact) {
-        idx = found != -1 ? found : adapter.config.devices.length;
+        idx = found !== -1 ? found : adapter.config.devices.length;
         foundDevice.manufacturerId = this.afield_id; // '60092596';
         foundDevice.version = this.afield_ver;       // 6
         foundDevice.type = this.afield_type;         // 2
@@ -418,9 +426,11 @@ function run(comPort, cb) {
     com = new coms[0]({serialport: comPort}, function (res) {
         if (res) return cb && cb(res);
         com.close();
-        com = new coms[1]({serialport: comPort}, function (res) {
-            cb && cb(res);
-        });
+        setTimeout(function() {
+            com = new coms[1]({serialport: comPort}, function (res) {
+                cb && cb(res);
+            });
+        }, 2000);
     });
 }
 
@@ -433,7 +443,7 @@ function main() {
     }
 
     run(adapter.config.comPort, function(type) {
-       if (type != adapter.config.type) {
+       if (type !== adapter.config.type) {
            changeConfig(function(config) {
                config.type = type;
                return true;
