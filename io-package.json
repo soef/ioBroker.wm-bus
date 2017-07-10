@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "wm-bus",
-    "version": "0.2.0",
+    "version": "0.2.1",
     "new": {
+      "0.2.1": {
+        "en": "adapter type changed to energy",
+        "de": "Adapter type nach energy geändert"
+      },
       "0.2.0": {
         "en": "Some changed to use serialport 4.x",
         "de": "Einige Anpassungen um serialport 4.x zu nutzen"
@@ -31,7 +35,7 @@
     ],
     "enabled": true,
     "nondeletable": false,
-    "type": "hardware",
+    "type": "energy",
     "messagebox": true
   },
   "native": {
