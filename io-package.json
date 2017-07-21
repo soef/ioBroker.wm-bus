@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "wm-bus",
-    "version": "0.2.1",
+    "version": "0.2.2",
     "new": {
+      "0.2.2": {
+        "en": "now using version 0.1.9 of wm-bus",
+        "de": "Version 0.1.9 von wm-bus wird nun verwendet"
+      },
       "0.2.1": {
         "en": "adapter type changed to energy",
         "de": "Adapter type nach energy geändert"
