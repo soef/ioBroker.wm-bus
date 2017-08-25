@@ -1,8 +1,12 @@
 {
   "common": {
     "name": "wm-bus",
-    "version": "0.2.3",
+    "version": "0.2.4",
     "new": {
+      "0.2.4": {
+        "en": "Enhance CI testing",
+        "de": "CI testing erweitert"
+      },
       "0.2.3": {
         "en": "reset of decrypted flag",
         "de": "Zurücksetzen der encrypted Variable"
