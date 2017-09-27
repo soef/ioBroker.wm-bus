@@ -29,7 +29,7 @@
   "engines": {
     "node": ">=4.4.0"
   },
-  "x-dependencies" : {
+  "x-dependencies": {
     "serialport": "^4.0.7",
     "xserialport": "^3.1.2"
   },
@@ -39,8 +39,8 @@
     "wm-bus": "^0.1.10"
   },
   "devDependencies": {
-    "mocha": "^2.3.4",
-    "chai": "^3.4.1"
+    "mocha": "^3.5.3",
+    "chai": "^4.1.2"
   },
   "bugs": {
     "url": "https://github.com/soef/iobroker.wm-bus/issues"
