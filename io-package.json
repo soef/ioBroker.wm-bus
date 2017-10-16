@@ -1,69 +1,73 @@
 {
-  "common": {
-    "name": "wm-bus",
-    "version": "0.2.6",
-    "new": {
-      "0.2.6": {
-        "en": "Possibility to use a hex-key",
-        "de": "möglichkeit geschaffen, einen hey-key zu verwenden"
-      },
-      "0.2.5": {
-        "en": "node 0.12 removed from testing",
-        "de": "node 0.12 auf testing entfernt"
-      },
-      "0.2.4": {
-        "en": "Enhance CI testing",
-        "de": "CI testing erweitert"
-      },
-      "0.2.3": {
-        "en": "reset of decrypted flag",
-        "de": "Zurücksetzen der encrypted Variable"
-      },
-      "0.2.2": {
-        "en": "now using version 0.1.9 of wm-bus",
-        "de": "Version 0.1.9 von wm-bus wird nun verwendet"
-      },
-      "0.2.1": {
-        "en": "adapter type changed to energy",
-        "de": "Adapter type nach energy geändert"
-      },
-      "0.2.0": {
-        "en": "Some changed to use serialport 4.x",
-        "de": "Einige Anpassungen um serialport 4.x zu nutzen"
-      }
+    "common": {
+        "name": "wm-bus",
+        "version": "0.2.6",
+        "new": {
+            "0.2.6": {
+                "en": "Possibility to use a hex-key",
+                "de": "möglichkeit geschaffen, einen hey-key zu verwenden"
+            },
+            "0.2.5": {
+                "en": "node 0.12 removed from testing",
+                "de": "node 0.12 auf testing entfernt"
+            },
+            "0.2.4": {
+                "en": "Enhance CI testing",
+                "de": "CI testing erweitert"
+            },
+            "0.2.3": {
+                "en": "reset of decrypted flag",
+                "de": "Zurücksetzen der encrypted Variable"
+            },
+            "0.2.2": {
+                "en": "now using version 0.1.9 of wm-bus",
+                "de": "Version 0.1.9 von wm-bus wird nun verwendet"
+            },
+            "0.2.1": {
+                "en": "adapter type changed to energy",
+                "de": "Adapter type nach energy geändert"
+            },
+            "0.2.0": {
+                "en": "Some changed to use serialport 4.x",
+                "de": "Einige Anpassungen um serialport 4.x zu nutzen"
+            }
+        },
+        "title": "Wireless M-Bus",
+        "desc": {
+            "en": "Wireless M-Bus",
+            "de": "Wireless M-Bus",
+            "ru": "Wireless M-Bus"
+        },
+        "platform": "Javascript/Node.js",
+        "mode": "daemon",
+        "icon": "wm-bus.png",
+        "extIcon": "https://raw.githubusercontent.com/soef/iobroker.wm-bus/master/admin/wm-bus.png",
+        "readme": "https://github.com/soef/iobroker.wm-bus/blob/master/README.md",
+        "license": "MIT",
+        "loglevel": "info",
+        "keywords": [
+            "ioBroker",
+            "m-bus",
+            "mbus",
+            "wm-bus",
+            "wireless m-bus",
+            "wireless mbus"
+        ],
+        "enabled": true,
+        "nondeletable": false,
+        "type": "protocols",
+        "messagebox": true,
+        "authors": [
+            {
+                "name": "soef",
+                "email": "soef@gmx.net"
+            }
+        ]
     },
-    "title": "Wireless M-Bus",
-    "desc": {
-      "en": "Wireless M-Bus",
-      "de": "Wireless M-Bus",
-      "ru": "Wireless M-Bus"
+    "native": {
+        "comPort": "",
+        "devices": []
     },
-    "platform": "Javascript/Node.js",
-    "mode": "daemon",
-    "icon": "wm-bus.png",
-    "extIcon": "https://raw.githubusercontent.com/soef/iobroker.wm-bus/master/admin/wm-bus.png",
-    "readme": "https://github.com/soef/iobroker.wm-bus/blob/master/README.md",
-    "license": "MIT",
-    "loglevel": "info",
-    "keywords": [
-      "ioBroker",
-      "m-bus",
-      "mbus",
-      "wm-bus",
-      "wireless m-bus",
-      "wireless mbus"
-    ],
-    "enabled": true,
-    "nondeletable": false,
-    "type": "energy",
-    "messagebox": true
-  },
-  "native": {
-    "comPort": "",
-    "devices" : []
-  },
-  "instanceObjects": [
-  ],
-  "objects": [
-  ]
+    "instanceObjects": [],
+    "objects": []
 }
