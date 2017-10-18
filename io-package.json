@@ -1,11 +1,11 @@
 {
     "common": {
         "name": "wm-bus",
-        "version": "0.2.6",
+        "version": "0.2.7",
         "new": {
-            "0.2.6": {
-                "en": "Possibility to use a hex-key",
-                "de": "möglichkeit geschaffen, einen hey-key zu verwenden"
+            "0.2.7": {
+                "en": "Possibility to use a hex AES-Key",
+                "de": "möglichkeit geschaffen, einen hey AES-Key zu verwenden"
             },
             "0.2.5": {
                 "en": "node 0.12 removed from testing",
