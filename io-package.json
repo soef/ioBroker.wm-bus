@@ -1,8 +1,12 @@
 {
     "common": {
         "name": "wm-bus",
-        "version": "0.2.8",
+        "version": "0.2.9",
         "new": {
+            "0.2.9": {
+                "en": "unit K changed to mK (temp dif)",
+                "de": "Einheit K nach mK geändert (temp dif)"
+            },
             "0.2.8": {
                 "en": "fix utf8 unit typo",
                 "de": "utf8 Einheit Zeichenfehler behoben "
