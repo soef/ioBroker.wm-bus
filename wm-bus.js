@@ -12,7 +12,7 @@ var WMB = require('wm-bus'),
 
 var com = null;
 
-var adapter = utils.adapter({
+var adapter = utils.Adapter({
     name: 'wm-bus',
 
     unload: function (callback) {
