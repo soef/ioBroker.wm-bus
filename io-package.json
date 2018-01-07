@@ -1,8 +1,12 @@
 {
     "common": {
         "name": "wm-bus",
-        "version": "0.2.9",
+        "version": "0.2.10",
         "new": {
+            "0.2.10": {
+                "en": "Update utils.js and usage, CI Testing and deps (Apollon77)",
+                "de": "utils.js und Benutzung erneuert, CI Testing (Apollon77)"
+            },
             "0.2.9": {
                 "en": "unit K changed to mK (temp dif)",
                 "de": "Einheit K nach mK geändert (temp dif)"

@@ -1,6 +1,6 @@
 {
   "name": "iobroker.wm-bus",
-  "version": "0.2.9",
+  "version": "0.2.10",
   "description": "Wireless M-Bus Adapter",
   "author": {
     "name": "soef",
