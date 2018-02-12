@@ -1,13 +1,8 @@
 {
     "common": {
         "name": "wm-bus",
-        "version": "0.3.0",
+        "version": "0.2.10",
         "new": {
-            "0.3.0": {
-                "en": "Upgrade Serialport Library",
-                "de": "Serialport Bibliothek aktualisiert",
-                "ru": "Upgrade Serialport Library"
-            },
             "0.2.10": {
                 "en": "Update utils.js and usage, CI Testing and deps (Apollon77)",
                 "de": "utils.js und Benutzung erneuert, CI Testing (Apollon77)"
