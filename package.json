@@ -1,6 +1,6 @@
 {
   "name": "iobroker.wm-bus",
-  "version": "0.3.0",
+  "version": "0.2.10",
   "description": "Wireless M-Bus Adapter",
   "author": {
     "name": "soef",
@@ -29,8 +29,12 @@
   "engines": {
     "node": ">=4.4.0"
   },
+  "x-dependencies": {
+    "serialport": "^4.0.7",
+    "xserialport": "^3.1.2"
+  },
   "dependencies": {
-    "serialport": "^6.0.4",
+    "serialport": "^4.0.7",
     "soef": "^0.1.44",
     "wm-bus": "^0.1.16"
   },

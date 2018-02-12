@@ -29,7 +29,7 @@ Manufacture ID, type and version will be determined after the first received mes
 #### Installation
 Execute the following command in the iobroker root directory (e.g. in /opt/iobroker)
 ```
-npm install iobroker.wm-bus
+npm install iobroker.wm-bus 
 ```
 
 #### Requirements
@@ -38,6 +38,3 @@ npm install iobroker.wm-bus
 + or a [CUL](http://shop.busware.de/product_info.php/products_id/29?osCsid=eab2ce6ef5efc95dbdf61396ca256b6e) USB Stick
 + a WM-Bus Device e.g. [EasyMeter](http://www.easymeter.com/)
 
-## Changelog
-### 0.3.0 (2018-01-23)
-* (Apollon77) Upgrade Serialport Library

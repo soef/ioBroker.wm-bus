@@ -102,7 +102,7 @@ var Com = function (options, callback) {
     this.msgReceived = 0;
 
     this.prepare(spOptions);
-    if (options.baudRate) spOptions.baudRate = parseInt(options.baudRate,10);
+    if (options.baudrate) spOptions.baudrate = parseInt(options.baudrate,10);
 
     //var serialPort = new serialPortModule.SerialPort(options.serialport, spOptions);
     var serialPort = new serialPortModule (options.serialport, spOptions);
@@ -226,7 +226,7 @@ var Com = function (options, callback) {
 };
 
 Com.prototype.prepare = function(spOptions) {
-    spOptions.baudRate = 57600;
+    spOptions.baudrate = 57600;
 };
 
 Com.prototype.init = function (callback) {
@@ -241,7 +241,7 @@ Com.prototype.init = function (callback) {
                             //??? xxxxxxx
                         }
                         if (callback) callback(soef.hasProp(that, 'deviceConfig.linkMode') ? 'iM871A' : undefined);
-
+                        
                     });
                 });
             });
@@ -264,7 +264,7 @@ var CulCom = function (options, callback) {
 };
 
 CulCom.prototype.prepare = function(spOptions) {
-    spOptions.baudRate = 9600;
+    spOptions.baudrate = 9600;
     spOptions.parser = serialPortModule.parsers.readline('\r\n');
 };
 
