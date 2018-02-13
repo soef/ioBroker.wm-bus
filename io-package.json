@@ -1,12 +1,16 @@
 {
     "common": {
         "name": "wm-bus",
-        "version": "0.3.0",
+        "version": "0.3.1",
         "new": {
+            "0.3.1": {
+                "en": "serial port communication fixed for cul (serialport 6.1.0, ReadLine parser)",
+                "de": "Serialport Kommunikation für CUL repariert (serialport 6.1.0, ReadLine parser)"
+            },
             "0.3.0": {
-                "en": "Upgrade Serialport Library",
-                "de": "Serialport Bibliothek aktualisiert",
-                "ru": "Upgrade Serialport Library"
+                "en": "Upgrade Serialport Library (Apollon77)",
+                "de": "Serialport Bibliothek aktualisiert (Apollon77)",
+                "ru": "Upgrade Serialport Library (Apollon77)"
             },
             "0.2.10": {
                 "en": "Update utils.js and usage, CI Testing and deps (Apollon77)",

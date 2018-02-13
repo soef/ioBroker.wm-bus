@@ -104,8 +104,11 @@ var Com = function (options, callback) {
     this.prepare(spOptions);
     if (options.baudRate) spOptions.baudRate = parseInt(options.baudRate,10);
 
-    //var serialPort = new serialPortModule.SerialPort(options.serialport, spOptions);
     var serialPort = new serialPortModule (options.serialport, spOptions);
+    if (this.parser) {
+        this.parser = serialPort.pipe(this.parser);
+    }
+
 
     this.close = function (callback) {
         if (!serialPort) return;
@@ -134,7 +137,7 @@ var Com = function (options, callback) {
     });
 
     serialPort.on("open", function () {
-        serialPort.on('data', that.onData.bind(that));
+        that.parser ? that.parser.on('data', that.onData.bind(that)) : serialPort.on('data', that.onData.bind(that));
         that.init(callback);
     });
 
@@ -265,7 +268,7 @@ var CulCom = function (options, callback) {
 
 CulCom.prototype.prepare = function(spOptions) {
     spOptions.baudRate = 9600;
-    spOptions.parser = serialPortModule.parsers.readline('\r\n');
+    this.parser = new serialPortModule.parsers.Readline({delimiter: '\r\n'});
 };
 
 CulCom.prototype.init = function (callback) {
@@ -277,27 +280,48 @@ CulCom.prototype.init = function (callback) {
     });
 };
 
-CulCom.prototype.decode = function(data) {
-    if (data.indexOf('b4') === 0) {
-        var d ='';
-        data.substr(1).match(/(..)/g).forEach (function(v) {
-            d += String.fromCharCode(parseInt(v, 16));
-        });
-        this.wmbus.parse(d);
-    }
-};
+// CulCom.prototype.decode = function(data) {
+//     if (data.indexOf('b4') === 0) {
+//         var d ='';
+//         data.substr(1).match(/(..)/g).forEach (function(v) {
+//             d += String.fromCharCode(parseInt(v, 16));
+//         });
+//         this.wmbus.parse(d);
+//     }
+// };
+//
+// CulCom.prototype.onData = function (data) {
+//     if(typeof data === 'string' && data[0] === 'b') {
+//         adapter.log.debug('raw: ' + data);
+//         this.decode(data);
+//     } else if (data.length >= 2 && data[0] === 98) {
+//         this.decode(data);
+//     } else {
+//         if (typeof data === 'string' && data.indexOf('TMODE' === 0)) {
+//             this.tmode = true;
+//         } else if (data[0]===84 && data[1]===77 && data[2]===79 && data[3]===68 && data[4]===69) { // TMODE
+//             this.tmode = true;
+//         }
+//     }
+// };
 
 CulCom.prototype.onData = function (data) {
-    if(typeof data === 'string' && data[0] === 'b') {
+    if (typeof data !== 'string') return; // with ReadLine parser, data will be a string
+    if(data.length >=2 && data[0] === 'b' /*98*/ && data[1] === '4' /*52*/) {   // === 'b4'
+        var binString = '';
+        for (var i=1, len=data.length; i+1 < len; i+=2) {
+            binString += String.fromCharCode(parseInt(data[i] + data[i+1], 16))
+        }
+        // data.substr(1).match(/(..)/g).forEach (function(v) {
+        //     binString += String.fromCharCode(parseInt(v, 16));
+        // });
+        this.wmbus.parse(binString);
         adapter.log.debug('raw: ' + data);
-        this.decode(data);
-    } else if (data.length >= 2 && data[0] === 98) {
-        this.decode(data);
     } else {
-        if (typeof data === 'string' && data.indexOf('TMODE' === 0)) {
+        if (data === 'TMODE') {
+            //if (data[0]===84 && data[1]===77 && data[2]===79 && data[3]===68 && data[4]===69) { // === 'TMODE'
             this.tmode = true;
-        } else if (data[0]===84 && data[1]===77 && data[2]===79 && data[3]===68 && data[4]===69) { // TMODE
-            this.tmode = true;
+            adapter.log.debug('TMODE detected and tmode set to true')
         }
     }
 };
