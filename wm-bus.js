@@ -327,6 +327,59 @@ CulCom.prototype.onData = function (data) {
 };
 
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+var AmberCom = function (options, callback) {
+    Com.call(this, options, callback);
+};
+
+AmberCom.prototype.prepare = function(spOptions) {
+    spOptions.baudRate = 9600;
+    this.parser = '';
+};
+
+AmberCom.prototype.init = function (callback) {
+    var that = this;
+    this.frameBuffer = false;
+    this.telegramLength = -1;
+    callback('amber');
+};
+
+AmberCom.prototype.onData = function (data) {
+    if (!Buffer.isBuffer(data)) {
+        adapter.log.debug('Unkown data received');
+        adapter.log.debug(JSON.stringify(data));
+        return;
+    }
+    if (data[0] === 0xFF) { // start of telegram
+        this.frameBuffer = data;
+        if (this.frameBuffer.byteLength > 2) {
+            this.telegramLength = data[2] + 4;
+        } else {
+            this.telegramLength = -1;
+            return;
+        }
+    } else {
+        this.frameBuffer = this.frameBuffer ? Buffer.concat([this.frameBuffer, data]) : data;
+    }
+
+    if ((this.telegramLength === -1) && (this.frameBuffer.byteLength > 2)) {
+        this.telegramLength = data[2] + 4;
+    }
+    if (this.telegramLength === -1) {
+        return;
+    }
+
+    if (this.telegramLength <= this.frameBuffer.byteLength) {
+        adapter.log.debug('telegram received: ' + this.frameBuffer.toString('hex'));
+        this.wmbus.crcRemoved = true;
+        this.wmbus.parse(this.frameBuffer.toString().substr(2, this.telegramLength - 4));
+        this.telegramLength == -1;
+        this.frameBuffer = false;
+    }
+};
+
+
 function newCDevice(name, showName) {
 
     devices.CDevice.prototype.updateState = function (data, value) {
@@ -443,9 +496,9 @@ WMBUS.prototype.checkConfiguration = function () {
 };
 
 function run(comPort, cb) {
-    var coms = [CulCom, Com];
+    var coms = [CulCom, AmberCom, Com];
     if (adapter.config.type === 'iM871A') {
-        coms.push(coms.shift());
+        coms.unshift(coms.pop());
     }
     com = new coms[0]({serialport: comPort}, function (res) {
         if (res) return cb && cb(res);
