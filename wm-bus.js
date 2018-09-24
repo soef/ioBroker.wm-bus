@@ -373,8 +373,8 @@ AmberCom.prototype.onData = function (data) {
     if (this.telegramLength <= this.frameBuffer.byteLength) {
         adapter.log.debug('telegram received: ' + this.frameBuffer.toString('hex'));
         this.wmbus.crcRemoved = true;
-        this.wmbus.parse(this.frameBuffer.toString().substr(2, this.telegramLength - 4));
-        this.telegramLength == -1;
+        this.wmbus.parse(this.frameBuffer.toString('hex', 2, this.telegramLength - 2));
+        this.telegramLength = -1;
         this.frameBuffer = false;
     }
 };
