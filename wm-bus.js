@@ -345,6 +345,16 @@ AmberCom.prototype.init = function (callback) {
     callback('amber');
 };
 
+AmberCom.prototype.checkSum = function(data) {
+    var csum = data[0];
+
+    for (let i = 1; i < data.length-1; ++i) {
+        csum ^= data[i];
+    }
+
+    return (csum === data[data.length-1]);
+}
+
 AmberCom.prototype.onData = function (data) {
     if (!Buffer.isBuffer(data)) {
         adapter.log.debug('Unkown data received');
@@ -371,9 +381,14 @@ AmberCom.prototype.onData = function (data) {
     }
 
     if (this.telegramLength <= this.frameBuffer.byteLength) {
-        adapter.log.debug('telegram received: ' + this.frameBuffer.toString('hex'));
-        this.wmbus.crcRemoved = true;
-        this.wmbus.parseHex(this.frameBuffer.toString('hex', 2, this.telegramLength - 2));
+        var crcPassed = this.checkSum(this.frameBuffer.slice(0, this.telegramLength));
+        if (!crcPassed) {
+            adapter.log.debug('telegram received - check sum failed: ' + this.frameBuffer.toString('hex'));
+        } else {
+            adapter.log.debug('telegram received: ' + this.frameBuffer.toString('hex'));
+            this.wmbus.crcRemoved = true;
+            this.wmbus.parseHex(this.frameBuffer.toString('hex', 2, this.telegramLength - 2));
+        }
         this.telegramLength = -1;
         this.frameBuffer = false;
     }
